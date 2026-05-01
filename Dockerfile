@@ -13,4 +13,4 @@ RUN npm run build
 ENV NODE_ENV=production
 EXPOSE 3010
 
-CMD ["node", "dist/server.js"]
+CMD ["node", "dist/main.js"]
