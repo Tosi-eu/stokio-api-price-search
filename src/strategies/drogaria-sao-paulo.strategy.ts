@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { logger } from '../logger';
+import { reportPriceSearchError } from '../clients/error-ingest.client';
 import { withRetry } from '../lib/retry';
 import type { PriceSourceStrategy } from '../types';
 
@@ -76,6 +77,14 @@ export class DrogariaSaoPauloStrategy implements PriceSourceStrategy {
       logger.error('Erro ao buscar preços na Drogaria São Paulo', {
         source: this.sourceName,
         error: (error as Error).message,
+      });
+      reportPriceSearchError(error, {
+        context: {
+          strategy: this.sourceName,
+          itemName,
+          dosage: dosage ?? null,
+        },
+        code: 'drogaria_sao_paulo_strategy',
       });
       return [];
     }

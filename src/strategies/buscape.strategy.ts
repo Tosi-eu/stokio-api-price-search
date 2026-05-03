@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { load } from 'cheerio';
 import { logger } from '../logger';
+import { reportPriceSearchError } from '../clients/error-ingest.client';
 import type { PriceSourceStrategy } from '../types';
 
 export class BuscapeStrategy implements PriceSourceStrategy {
@@ -43,6 +44,10 @@ export class BuscapeStrategy implements PriceSourceStrategy {
     } catch (error) {
       logger.error('Erro no BuscapeStrategy', {
         error: (error as Error).message,
+      });
+      reportPriceSearchError(error, {
+        context: { strategy: 'buscape', itemName },
+        code: 'buscape_strategy',
       });
       return [];
     }

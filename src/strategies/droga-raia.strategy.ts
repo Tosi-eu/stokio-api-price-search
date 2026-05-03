@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { logger } from '../logger';
+import { reportPriceSearchError } from '../clients/error-ingest.client';
 import { withRetry } from '../lib/retry';
 import type { PriceSourceStrategy } from '../types';
 
@@ -73,6 +74,14 @@ export class DrogaRaiaStrategy implements PriceSourceStrategy {
       logger.error('Erro ao buscar preços na Droga Raia', {
         source: this.sourceName,
         error: (error as Error).message,
+      });
+      reportPriceSearchError(error, {
+        context: {
+          strategy: this.sourceName,
+          itemName,
+          dosage: dosage ?? null,
+        },
+        code: 'droga_raia_strategy',
       });
       return [];
     }

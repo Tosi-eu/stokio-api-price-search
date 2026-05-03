@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { load } from 'cheerio';
 import { logger } from '../logger';
+import { reportPriceSearchError } from '../clients/error-ingest.client';
 import type { PriceSourceStrategy } from '../types';
 
 export class ConsultaRemediosStrategy implements PriceSourceStrategy {
@@ -64,6 +65,15 @@ export class ConsultaRemediosStrategy implements PriceSourceStrategy {
     } catch (error) {
       logger.error('Erro no ConsultaRemediosStrategy', {
         error: (error as Error).message,
+      });
+      reportPriceSearchError(error, {
+        context: {
+          strategy: 'consulta_remedios',
+          itemName,
+          dosage: dosage ?? null,
+          measurementUnit: measurementUnit ?? null,
+        },
+        code: 'consulta_remedios_strategy',
       });
       return [];
     }

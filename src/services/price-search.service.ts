@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { logger } from '../logger';
+import { reportPriceSearchError } from '../clients/error-ingest.client';
 import { OutlierFilter, PriceAggregator } from '../lib/aggregator';
 import type { PriceSourceStrategy, PriceSearchResult } from '../types';
 import { PriceSearchRepository } from '../repositories/price-search.repository';
@@ -85,6 +86,17 @@ export class PriceSearchService {
             operation: 'price_search',
             source: strategy.sourceName,
             error: (error as Error).message,
+          });
+          reportPriceSearchError(error, {
+            context: {
+              operation: 'price_search',
+              strategy: strategy.sourceName,
+              itemName,
+              itemType,
+              dosage: dosage ?? null,
+              measurementUnit: measurementUnit ?? null,
+            },
+            code: 'price_search_strategy',
           });
         }
       }),

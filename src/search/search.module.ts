@@ -21,6 +21,7 @@ import {
   REDIS_CLIENT,
 } from '../lib/injection-tokens';
 import { logger } from '../logger';
+import { reportPriceSearchError } from '../clients/error-ingest.client';
 import { RedisShutdownHook } from '../lib/redis-shutdown.hook';
 
 @Module({
@@ -48,6 +49,11 @@ import { RedisShutdownHook } from '../lib/redis-shutdown.hook';
         });
         client.on('error', err => {
           logger.error('Redis error', { error: err.message });
+          reportPriceSearchError(err, {
+            category: 'integration',
+            code: 'redis_client',
+            context: { redisHost: config.REDIS_HOST },
+          });
         });
         return client;
       },

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { load } from 'cheerio';
 import { logger } from '../logger';
+import { reportPriceSearchError } from '../clients/error-ingest.client';
 import type { PriceSourceStrategy } from '../types';
 
 export class MercadoLivreStrategy implements PriceSourceStrategy {
@@ -43,6 +44,10 @@ export class MercadoLivreStrategy implements PriceSourceStrategy {
     } catch (error) {
       logger.error('Erro no MercadoLivreStrategy', {
         error: (error as Error).message,
+      });
+      reportPriceSearchError(error, {
+        context: { strategy: 'mercado_livre', itemName },
+        code: 'mercado_livre_strategy',
       });
       return [];
     }
