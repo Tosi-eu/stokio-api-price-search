@@ -1,10 +1,10 @@
 import { Pool } from 'pg';
-import { resolveDatabaseUrl } from './database-url';
+import { resolveMainDatabaseUrl } from './database-url';
 
 export const PRICING_API_KEY_DB_ROW = 'runtime.pricing.api_key';
 
 export async function loadPricingApiKeyFromDb(): Promise<string | null> {
-  const url = resolveDatabaseUrl();
+  const url = resolveMainDatabaseUrl();
   if (!url) return null;
 
   const pool = new Pool({ connectionString: url, max: 1 });

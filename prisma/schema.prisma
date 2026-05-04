@@ -17,12 +17,6 @@ enum PriceItemType {
   @@schema("pricing")
 }
 
-/// Tabela normalizada de preços (L2). Sempre upsert por chave canônica.
-/// `averagePrice = NULL` representa um cache negativo (todas as fontes falharam).
-/// Os campos canônicos `dosageCanonical` e `unitCanonical` usam string vazia
-/// (em vez de NULL) para representar "sem valor", permitindo que o índice
-/// `@@unique` funcione naturalmente — Postgres trataria NULL como distinto.
-/// Os campos `*Original` continuam nullable para preservar a entrada do usuário.
 model CachedPrice {
   id              Int           @id @default(autoincrement())
   itemType        PriceItemType

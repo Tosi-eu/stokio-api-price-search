@@ -32,11 +32,6 @@ export interface UpsertMissInput {
   errorMessage?: string;
 }
 
-/**
- * Persistência (L2) do cache de preços. Acessa exclusivamente o schema
- * `pricing` via Prisma. Quando o `PrismaClient` não está disponível (ex.: dev
- * sem DB) os métodos viram no-op para não quebrar a busca de preço.
- */
 @Injectable()
 export class PriceDbRepository {
   constructor(

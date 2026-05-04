@@ -27,7 +27,7 @@ import { logger } from '../logger';
 import { reportPriceSearchError } from '../clients/error-ingest.client';
 import { RedisShutdownHook } from '../lib/redis-shutdown.hook';
 import { PrismaShutdownHook } from '../lib/prisma-shutdown.hook';
-import { resolveDatabaseUrl } from '../config/database-url';
+import { resolvePricingCacheDatabaseUrl } from '../config/database-url';
 
 @Module({
   controllers: [SearchController],
@@ -75,9 +75,11 @@ import { resolveDatabaseUrl } from '../config/database-url';
     {
       provide: PRISMA_CLIENT,
       useFactory: (): PrismaClient | null => {
-        const url = resolveDatabaseUrl();
+        const url = resolvePricingCacheDatabaseUrl();
         if (!url) {
-          logger.warn('DATABASE_URL não definido — cache L2 desativado');
+          logger.warn(
+            'DATABASE_URL / PRICING_CACHE_DATABASE_URL ou PRICING_DB_* — cache L2 desativado',
+          );
           return null;
         }
         const prisma = new PrismaClient({
