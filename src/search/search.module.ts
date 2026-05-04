@@ -6,6 +6,7 @@ import {
 import Redis from 'ioredis';
 import { PrismaClient } from '@prisma/client';
 import { SearchController } from '../controllers/search.controller';
+import { PricingAuditInterceptor } from '../interceptors/pricing-audit.interceptor';
 import { PriceSearchService } from '../services/price-search.service';
 import { PriceSearchRepository } from '../repositories/price-search.repository';
 import { PriceDbRepository } from '../repositories/price-db.repository';
@@ -32,6 +33,7 @@ import { resolvePricingCacheDatabaseUrl } from '../config/database-url';
 @Module({
   controllers: [SearchController],
   providers: [
+    PricingAuditInterceptor,
     PriceSearchRepository,
     PriceDbRepository,
     PriceSearchService,
