@@ -1,6 +1,6 @@
 FROM node:20-alpine
 
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl openssl libc6-compat ca-certificates
 
 WORKDIR /app
 
