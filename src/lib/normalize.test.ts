@@ -4,6 +4,7 @@ import {
   canonicalKey,
   canonicalizeText,
   normalizeDosage,
+  vtexCatalogSearchQuery,
 } from './normalize';
 
 describe('canonicalizeText', () => {
@@ -57,7 +58,6 @@ describe('normalizeDosage', () => {
 
   it('passes non-numeric content through trimmed', () => {
     expect(normalizeDosage('mg')).toBe('mg');
-    // Whitespace-only entradas viram '' (parseFloat falha e o trim apaga).
     expect(normalizeDosage('  ')).toBe('');
   });
 });
@@ -145,5 +145,17 @@ describe('canonicalCacheKey', () => {
     expect(canonicalCacheKey(k)).toBe(
       `pricing:${CACHE_KEY_VERSION}:input:soro_fisiologico:-:-`,
     );
+  });
+});
+
+describe('vtexCatalogSearchQuery', () => {
+  it('remove caracteres que quebram o path VTEX (parênteses, %)', () => {
+    expect(
+      vtexCatalogSearchQuery('Nasonew (cloreto de sódio 0,9%)', '30'),
+    ).toBe('nasonew cloreto de sodio 0,9 30');
+  });
+
+  it('preserva dosagem numérica útil', () => {
+    expect(vtexCatalogSearchQuery('Cinacalcete', '30')).toBe('cinacalcete 30');
   });
 });
