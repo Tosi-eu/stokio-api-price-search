@@ -13,8 +13,8 @@ interface VTEXProduct {
   }>;
 }
 
-export class DrogariaSaoPauloStrategy implements PriceSourceStrategy {
-  readonly sourceName = 'drogaria_sao_paulo';
+export class PagueMenosStrategy implements PriceSourceStrategy {
+  readonly sourceName = 'pague_menos';
 
   supports(itemType: 'medicine' | 'input'): boolean {
     return itemType === 'medicine';
@@ -31,10 +31,10 @@ export class DrogariaSaoPauloStrategy implements PriceSourceStrategy {
       const query = vtexCatalogSearchQuery(itemName, dosage);
 
       const url =
-        'https://www.drogariasaopaulo.com.br/api/catalog_system/pub/products/search/' +
+        'https://www.paguemenos.com.br/api/catalog_system/pub/products/search/' +
         encodeURIComponent(query);
 
-      logger.debug('Buscando preços na Drogaria São Paulo (VTEX)', {
+      logger.debug('Buscando preços na Pague Menos (VTEX)', {
         source: this.sourceName,
         url,
         query,
@@ -76,7 +76,7 @@ export class DrogariaSaoPauloStrategy implements PriceSourceStrategy {
 
       return prices;
     } catch (error) {
-      logger.error('Erro ao buscar preços na Drogaria São Paulo', {
+      logger.error('Erro ao buscar preços na Pague Menos', {
         source: this.sourceName,
         error: (error as Error).message,
       });
@@ -86,7 +86,7 @@ export class DrogariaSaoPauloStrategy implements PriceSourceStrategy {
           itemName,
           dosage: dosage ?? null,
         },
-        code: 'drogaria_sao_paulo_strategy',
+        code: 'pague_menos_strategy',
       });
       return [];
     }

@@ -122,3 +122,21 @@ export function canonicalCacheKey(key: CanonicalKey): string {
   ];
   return parts.join(':').replace(/\s+/g, '_');
 }
+
+/**
+ * Termo para `GET .../api/catalog_system/pub/products/search/{term}` (VTEX).
+ * O segmento de path com caracteres como `( ) %` em nomes compostos (ex.: solução 0,9%)
+ * pode responder **400**; reutilizamos a mesma limpeza da chave de cache.
+ */
+export function vtexCatalogSearchQuery(itemName: string, dosage?: string): string {
+  const combined = canonicalizeText(`${itemName} ${dosage ?? ''}`.trim());
+  const fallback = canonicalizeText(itemName);
+  let out = (combined || fallback).trim();
+  if (!out) {
+    out = String(itemName ?? '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 80);
+  }
+  return out.slice(0, 120);
+}
