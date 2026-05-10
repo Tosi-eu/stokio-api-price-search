@@ -22,7 +22,7 @@ RUN set -e; \
   export DATABASE_URL; \
   npx prisma generate
 
-RUN NODE_ENV=production npm run build
+RUN npm run build
 
 EXPOSE 3010
 
