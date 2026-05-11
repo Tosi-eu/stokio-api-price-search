@@ -71,7 +71,7 @@ export class PriceDbRepository {
         hasSuccess: row.lastSucceededAt !== null && row.averagePrice !== null,
       };
     } catch (error) {
-      logger.error('Erro ao ler cached_price', {
+      logger.error('Failed to read cached_price', {
         operation: 'price_db_find',
         error: (error as Error).message,
       });
@@ -130,7 +130,7 @@ export class PriceDbRepository {
         },
       });
     } catch (error) {
-      logger.error('Erro ao gravar cached_price (hit)', {
+      logger.error('Failed to write cached_price (hit)', {
         operation: 'price_db_upsert_hit',
         error: (error as Error).message,
       });
@@ -185,7 +185,7 @@ export class PriceDbRepository {
         },
       });
     } catch (error) {
-      logger.error('Erro ao gravar cached_price (miss)', {
+      logger.error('Failed to write cached_price (miss)', {
         operation: 'price_db_upsert_miss',
         error: (error as Error).message,
       });
@@ -210,7 +210,7 @@ export class PriceDbRepository {
         },
       });
     } catch (error) {
-      logger.error('Erro ao apagar cached_price', {
+      logger.error('Failed to delete cached_price', {
         operation: 'price_db_delete',
         error: (error as Error).message,
       });

@@ -163,7 +163,7 @@ export class PriceSearchRepository {
       // Invalida L1 explicitamente — não envenenamos o cache rápido com null;
       // o `miss-cached` em L2 já evita re-bater APIs.
       this.l1.invalidate(cacheKey).catch(err => {
-        logger.warn('Falha ao invalidar L1 após miss', {
+        logger.warn('Failed to invalidate L1 after miss', {
           error: (err as Error).message,
         });
       }),
@@ -188,7 +188,7 @@ export class PriceSearchRepository {
     try {
       await this.l1.set(cacheKey, payload, this.l1TtlSeconds);
     } catch (err) {
-      logger.warn('Falha ao aquecer L1', {
+      logger.warn('Failed to warm L1', {
         error: (err as Error).message,
       });
     }

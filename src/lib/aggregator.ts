@@ -3,7 +3,7 @@ import { logger } from '../logger';
 /** Mediana amostral (valores finitos). */
 export function median(values: number[]): number {
   if (values.length === 0) {
-    throw new Error('median: lista vazia');
+    throw new Error('median: empty list');
   }
   const sorted = [...values].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
@@ -45,12 +45,12 @@ export class OutlierFilter {
     const medianIndex = Math.floor(sortedPrices.length * 0.5);
     const median = sortedPrices[medianIndex];
 
-    logger.debug('Análise de outliers', {
+    logger.debug('Outlier analysis', {
       operation: 'price_search',
-      precos: sortedPrices.map(p => p.toFixed(2)),
+      prices: sortedPrices.map(p => p.toFixed(2)),
       min: minPrice.toFixed(2),
       max: maxPrice.toFixed(2),
-      mediana: median.toFixed(2),
+      median: median.toFixed(2),
     });
 
     if (prices.length === 2) {
@@ -58,9 +58,9 @@ export class OutlierFilter {
       const maxDiff = sortedPrices[0] * 3;
 
       if (diff > maxDiff) {
-        logger.debug('Diferença muito grande entre preços, usando menor', {
+        logger.debug('Large spread between two prices, using lower', {
           operation: 'price_search',
-          preco: minPrice.toFixed(2),
+          price: minPrice.toFixed(2),
         });
         return [minPrice];
       }
@@ -76,10 +76,10 @@ export class OutlierFilter {
           .reduce((sum, p) => sum + p, 0) / Math.ceil(sortedPrices.length / 2);
       const maxPriceRatio = maxPrice / median;
 
-      logger.debug('Análise de outliers - estatísticas', {
+      logger.debug('Outlier analysis — stats', {
         operation: 'price_search',
-        mediaMetadeInferior: averageOfLowerHalf.toFixed(2),
-        ratioMaximoMediana: maxPriceRatio.toFixed(2),
+        lowerHalfAverage: averageOfLowerHalf.toFixed(2),
+        maxToMedianRatio: maxPriceRatio.toFixed(2),
       });
 
       if (maxPriceRatio > 2.5) {
@@ -90,11 +90,11 @@ export class OutlierFilter {
           const isOutlier = ratioToMedian > 3.0 || ratioToLowerAvg > 3.5;
 
           if (isOutlier) {
-            logger.debug('Preço removido como outlier', {
+            logger.debug('Price removed as outlier', {
               operation: 'price_search',
-              preco: price.toFixed(2),
-              ratioMediana: ratioToMedian.toFixed(2),
-              ratioLowerAvg: ratioToLowerAvg.toFixed(2),
+              price: price.toFixed(2),
+              ratioToMedian: ratioToMedian.toFixed(2),
+              ratioToLowerAvg: ratioToLowerAvg.toFixed(2),
             });
             return false;
           }
@@ -103,7 +103,7 @@ export class OutlierFilter {
 
         if (filteredPrices.length === 0) {
           logger.debug(
-            'Todos os preços foram removidos no primeiro filtro, aplicando filtro mais permissivo',
+            'All prices removed in first pass, applying looser filter',
             {
               operation: 'price_search',
             },
@@ -112,9 +112,9 @@ export class OutlierFilter {
             const ratioToLowerAvg = price / averageOfLowerHalf;
             const keep = ratioToLowerAvg <= 4.0;
             if (!keep) {
-              logger.debug('Preço ainda muito alto', {
+              logger.debug('Price still too high', {
                 operation: 'price_search',
-                preco: price.toFixed(2),
+                price: price.toFixed(2),
                 ratioToLowerAvg: ratioToLowerAvg.toFixed(2),
               });
             }
@@ -124,10 +124,10 @@ export class OutlierFilter {
 
         if (filteredPrices.length === 0) {
           logger.warn(
-            'Todos os preços foram removidos, usando média da metade inferior',
+            'All prices removed, using lower-half average',
             {
               operation: 'price_search',
-              preco: averageOfLowerHalf.toFixed(2),
+              price: averageOfLowerHalf.toFixed(2),
             },
           );
           return [averageOfLowerHalf];
@@ -135,10 +135,10 @@ export class OutlierFilter {
 
         if (filteredPrices.length < sortedPrices.length) {
           const removed = sortedPrices.filter(p => !filteredPrices.includes(p));
-          logger.debug('Outliers removidos', {
+          logger.debug('Outliers removed', {
             operation: 'price_search',
-            quantidadeRemovidos: removed.length,
-            precosRemovidos: removed.map(p => p.toFixed(2)),
+            removedCount: removed.length,
+            removedPrices: removed.map(p => p.toFixed(2)),
           });
         }
       }
@@ -162,13 +162,13 @@ export class OutlierFilter {
     const lowerBound = Math.max(0, q1 - 1.5 * iqr);
     const upperBound = q3 + 1.5 * iqr;
 
-    logger.debug('Análise IQR', {
+    logger.debug('IQR analysis', {
       operation: 'price_search',
       q1: q1.toFixed(2),
       q3: q3.toFixed(2),
       iqr: iqr.toFixed(2),
-      limiteInferior: lowerBound.toFixed(2),
-      limiteSuperior: upperBound.toFixed(2),
+      lowerBound: lowerBound.toFixed(2),
+      upperBound: upperBound.toFixed(2),
     });
 
     const finalFiltered = filteredPrices.filter(
@@ -177,9 +177,9 @@ export class OutlierFilter {
 
     if (finalFiltered.length === 0) {
       const newMedian = filteredPrices[Math.floor(filteredPrices.length * 0.5)];
-      logger.warn('IQR removeu todos, usando mediana', {
+      logger.warn('IQR removed all, using median', {
         operation: 'price_search',
-        mediana: newMedian.toFixed(2),
+        median: newMedian.toFixed(2),
       });
       return [newMedian];
     }
@@ -188,11 +188,11 @@ export class OutlierFilter {
 
     if (totalRemoved > 0) {
       const removedAll = sortedPrices.filter(p => !finalFiltered.includes(p));
-      logger.debug('Outliers removidos - resumo final', {
+      logger.debug('Outliers removed — final summary', {
         operation: 'price_search',
-        totalRemovidos: totalRemoved,
-        precosRemovidos: removedAll.map(p => p.toFixed(2)),
-        precosValidos: finalFiltered.map(p => p.toFixed(2)),
+        totalRemoved,
+        removedPrices: removedAll.map(p => p.toFixed(2)),
+        keptPrices: finalFiltered.map(p => p.toFixed(2)),
       });
     }
 

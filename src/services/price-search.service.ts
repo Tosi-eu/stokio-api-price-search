@@ -64,7 +64,7 @@ export class PriceSearchService implements OnModuleInit, OnApplicationShutdown {
     try {
       key = canonicalKey(itemType, original);
     } catch (err) {
-      logger.warn('canonicalKey rejeitou input', {
+      logger.warn('canonicalKey rejected input', {
         error: (err as Error).message,
       });
       return null;
@@ -110,7 +110,7 @@ export class PriceSearchService implements OnModuleInit, OnApplicationShutdown {
       measurementUnit,
     });
     await this.repository.invalidate(key);
-    logger.info('Cache invalidado (L1 + L2)', {
+    logger.info('Cache invalidated (L1 + L2)', {
       operation: 'price_cache_invalidate',
       itemType: key.itemType,
       nameCanonical: key.nameCanonical,
@@ -152,7 +152,7 @@ export class PriceSearchService implements OnModuleInit, OnApplicationShutdown {
     original: OriginalInput,
   ): void {
     const enqueued = this.bgQueue.enqueue(canonicalCacheKey(key), async () => {
-      logger.info('Refresh em background (stale)', {
+      logger.info('Background refresh (stale)', {
         operation: 'price_search_bg_refresh',
         itemType: key.itemType,
         nameCanonical: key.nameCanonical,
@@ -160,7 +160,7 @@ export class PriceSearchService implements OnModuleInit, OnApplicationShutdown {
       await this.runStrategiesAndCommit(key, original);
     });
     if (enqueued) {
-      logger.debug('Tarefa de refresh enfileirada', {
+      logger.debug('Refresh task enqueued', {
         operation: 'price_search_bg_enqueue',
         bgInflight: this.bgQueue.size(),
       });
@@ -176,7 +176,7 @@ export class PriceSearchService implements OnModuleInit, OnApplicationShutdown {
     );
 
     if (supportedStrategies.length === 0) {
-      logger.warn('Nenhuma strategy suporta o tipo informado', {
+      logger.warn('No strategy supports this item type', {
         operation: 'price_search',
         itemType: key.itemType,
       });
@@ -187,7 +187,7 @@ export class PriceSearchService implements OnModuleInit, OnApplicationShutdown {
       };
     }
 
-    logger.debug('Strategies selecionadas', {
+    logger.debug('Strategies selected', {
       operation: 'price_search',
       itemType: key.itemType,
       strategies: supportedStrategies.map(s => s.sourceName),
@@ -199,7 +199,7 @@ export class PriceSearchService implements OnModuleInit, OnApplicationShutdown {
     await Promise.allSettled(
       supportedStrategies.map(async strategy => {
         try {
-          logger.debug('Iniciando strategy', {
+          logger.debug('Strategy started', {
             source: strategy.sourceName,
           });
 
@@ -209,7 +209,7 @@ export class PriceSearchService implements OnModuleInit, OnApplicationShutdown {
             measurementUnit: original.measurementUnit,
           });
 
-          logger.debug('Strategy finalizada', {
+          logger.debug('Strategy finished', {
             source: strategy.sourceName,
             pricesFound: prices.length,
           });
@@ -222,7 +222,7 @@ export class PriceSearchService implements OnModuleInit, OnApplicationShutdown {
         } catch (error) {
           const msg = (error as Error).message;
           errors.push(`${strategy.sourceName}: ${msg}`);
-          logger.error('Erro na strategy', {
+          logger.error('Strategy error', {
             operation: 'price_search',
             source: strategy.sourceName,
             error: msg,
@@ -243,7 +243,7 @@ export class PriceSearchService implements OnModuleInit, OnApplicationShutdown {
     );
 
     if (results.size === 0) {
-      logger.info('Nenhum preço encontrado em nenhuma fonte', {
+      logger.info('No price found from any source', {
         operation: 'price_search',
         itemType: key.itemType,
         itemName: original.itemName,
@@ -275,12 +275,12 @@ export class PriceSearchService implements OnModuleInit, OnApplicationShutdown {
       lastUpdated: new Date(),
     };
 
-    logger.info('Busca de preço concluída', {
+    logger.info('Price search completed', {
       operation: 'price_search',
       itemName: original.itemName,
       itemType: key.itemType,
-      precoMedio: result.averagePrice,
-      fontes: result.source,
+      averagePrice: result.averagePrice,
+      sources: result.source,
       cacheLevel: 'origin',
       outcome: 'origin_hit',
     });
@@ -301,7 +301,7 @@ export class PriceSearchService implements OnModuleInit, OnApplicationShutdown {
     freshness: Freshness,
     level: 'L1' | 'L2' | null,
   ): void {
-    logger.info('Lookup de cache', {
+    logger.info('Cache lookup', {
       operation: 'price_search_lookup',
       itemType: key.itemType,
       nameCanonical: key.nameCanonical,

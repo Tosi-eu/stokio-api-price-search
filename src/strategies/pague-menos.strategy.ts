@@ -34,7 +34,7 @@ export class PagueMenosStrategy implements PriceSourceStrategy {
         'https://www.paguemenos.com.br/api/catalog_system/pub/products/search/' +
         encodeURIComponent(query);
 
-      logger.debug('Buscando preços na Pague Menos (VTEX)', {
+      logger.debug('Fetching prices from Pague Menos (VTEX)', {
         source: this.sourceName,
         url,
         query,
@@ -76,7 +76,7 @@ export class PagueMenosStrategy implements PriceSourceStrategy {
 
       return prices;
     } catch (error) {
-      logger.error('Erro ao buscar preços na Pague Menos', {
+      logger.error('Pague Menos price fetch failed', {
         source: this.sourceName,
         error: (error as Error).message,
       });

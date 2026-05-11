@@ -48,7 +48,7 @@ import { resolvePricingCacheDatabaseUrl } from '../config/database-url';
       provide: REDIS_CLIENT,
       useFactory: (config: AppConfig): Redis | null => {
         if (!config.REDIS_HOST) {
-          logger.warn('REDIS_HOST não definido — cache L1 desativado');
+          logger.warn('REDIS_HOST unset — L1 cache disabled');
           return null;
         }
         const client = new Redis({
@@ -80,7 +80,7 @@ import { resolvePricingCacheDatabaseUrl } from '../config/database-url';
         const url = resolvePricingCacheDatabaseUrl();
         if (!url) {
           logger.warn(
-            'DATABASE_URL / PRICING_CACHE_DATABASE_URL ou PRICING_DB_* — cache L2 desativado',
+            'DATABASE_URL / PRICING_CACHE_DATABASE_URL or PRICING_DB_* — L2 cache disabled',
           );
           return null;
         }

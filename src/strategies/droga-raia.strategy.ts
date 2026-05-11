@@ -24,7 +24,7 @@ export class DrogaRaiaStrategy implements PriceSourceStrategy {
         query,
       )}&search-type=direct`;
 
-      logger.debug('Buscando preços na Droga Raia', {
+      logger.debug('Fetching prices from Droga Raia', {
         source: this.sourceName,
         url,
         query,
@@ -47,7 +47,7 @@ export class DrogaRaiaStrategy implements PriceSourceStrategy {
       const nextData: unknown = this.extractNextData(response.data);
 
       if (!nextData || typeof nextData !== 'object') {
-        logger.warn('Next Data não encontrado na página', {
+        logger.warn('Next.js __NEXT_DATA__ not found on page', {
           source: this.sourceName,
         });
         return [];
@@ -71,7 +71,7 @@ export class DrogaRaiaStrategy implements PriceSourceStrategy {
         .map(product => Number(product.priceService) || null)
         .filter((price: number | null): price is number => price !== null);
     } catch (error) {
-      logger.error('Erro ao buscar preços na Droga Raia', {
+      logger.error('Droga Raia price fetch failed', {
         source: this.sourceName,
         error: (error as Error).message,
       });
