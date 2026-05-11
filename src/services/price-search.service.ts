@@ -1,7 +1,7 @@
 import { Inject, Injectable, OnModuleInit, OnApplicationShutdown } from '@nestjs/common';
 import { logger } from '../logger';
 import { reportPriceSearchError } from '../clients/error-ingest.client';
-import { OutlierFilter, PriceAggregator } from '../lib/aggregator';
+import { OutlierFilter, PriceAggregator, median } from '../lib/aggregator';
 import type { PriceSourceStrategy, PriceSearchResult } from '../types';
 import {
   PriceSearchRepository,
@@ -257,22 +257,20 @@ export class PriceSearchService implements OnModuleInit, OnApplicationShutdown {
       };
     }
 
-    const aggregatedPrices = this.aggregator.aggregate(results);
-    if (aggregatedPrices.length === 0) {
+    const perSourcePrices = this.aggregator.perSourceMedians(results);
+    if (perSourcePrices.length === 0) {
       return { result: null, pricesPerSource: mapToObj(results) };
     }
 
-    const filteredPrices = this.outlierFilter.remove(aggregatedPrices);
+    const filteredPrices = this.outlierFilter.remove(perSourcePrices);
     if (filteredPrices.length === 0) {
       return { result: null, pricesPerSource: mapToObj(results) };
     }
 
-    const averagePrice =
-      filteredPrices.reduce((sum, price) => sum + price, 0) /
-      filteredPrices.length;
+    const referencePrice = median(filteredPrices);
 
     const result: PriceSearchResult = {
-      averagePrice: Math.round(averagePrice * 100) / 100,
+      averagePrice: Math.round(referencePrice * 100) / 100,
       source: Array.from(results.keys()).join(','),
       lastUpdated: new Date(),
     };

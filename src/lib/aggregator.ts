@@ -1,16 +1,31 @@
 import { logger } from '../logger';
 
+/** Mediana amostral (valores finitos). */
+export function median(values: number[]): number {
+  if (values.length === 0) {
+    throw new Error('median: lista vazia');
+  }
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  if (sorted.length % 2 === 1) {
+    return sorted[mid];
+  }
+  return (sorted[mid - 1] + sorted[mid]) / 2;
+}
+
+/**
+ * Agrega cotações por fonte: cada fonte contribui com uma mediana intra-fonte.
+ * Assim, acrescentar uma nova fonte acrescenta uma única "votação" na combinação final,
+ * em vez de inflacionar o peso com dezenas de preços dessa fonte.
+ */
 export class PriceAggregator {
-  aggregate(results: Map<string, number[]>): number[] {
-    const allPrices: number[] = [];
-
+  perSourceMedians(results: Map<string, number[]>): number[] {
+    const reps: number[] = [];
     for (const [, prices] of results.entries()) {
-      if (prices.length > 0) {
-        allPrices.push(...prices);
-      }
+      if (prices.length === 0) continue;
+      reps.push(median(prices));
     }
-
-    return allPrices;
+    return reps;
   }
 }
 

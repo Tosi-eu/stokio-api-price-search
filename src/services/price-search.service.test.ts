@@ -63,9 +63,12 @@ function makeService(opts: {
   return { service, repoMocks: mocks };
 }
 
-function makeFakeMedicineStrategy(prices: number[]): PriceSourceStrategy {
+function makeFakeMedicineStrategy(
+  prices: number[],
+  sourceName = 'fake_med',
+): PriceSourceStrategy {
   return {
-    sourceName: 'fake_med',
+    sourceName,
     supports: t => t === 'medicine',
     fetchPrices: jest.fn(async () => prices),
   };
@@ -164,6 +167,29 @@ describe('PriceSearchService SWR flow', () => {
     expect(repoMocks.commitHit).toHaveBeenCalledTimes(1);
     expect(repoMocks.commitMiss).not.toHaveBeenCalled();
     expect(service.getMetrics().origin_hit).toBe(1);
+  }, 15_000);
+
+  it('combina várias fontes pela mediana das medianas (sem inflacionar com muitas cotações numa fonte)', async () => {
+    const stratLow = makeFakeMedicineStrategy([10, 11, 12], 'cheap_chain');
+    const stratHigh = makeFakeMedicineStrategy(
+      [30, 31, 32, 33, 100],
+      'wide_chain',
+    );
+    const { service, repoMocks } = makeService({
+      strategies: [stratLow, stratHigh],
+    });
+    repoMocks.lookup.mockResolvedValueOnce({
+      freshness: 'absent',
+      level: null,
+      hit: null,
+    });
+
+    const r = await service.searchPrice('TestMed', 'medicine');
+
+    expect(r).not.toBeNull();
+    // Medianas por fonte: 11 e 32 → mediana final ≈ 21,5 (não a média flat ~32)
+    expect(r?.averagePrice).toBe(21.5);
+    expect(repoMocks.commitHit).toHaveBeenCalledTimes(1);
   }, 15_000);
 
   it('commits a miss when no strategy returned prices', async () => {
