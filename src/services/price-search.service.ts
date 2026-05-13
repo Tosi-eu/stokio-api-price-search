@@ -82,14 +82,14 @@ export class PriceSearchService implements OnModuleInit, OnApplicationShutdown {
 
       case 'stale': {
         this.metrics.record('hit_stale_revalidate');
-        // Serve cached agora e dispara refresh em background.
+        
         this.scheduleBackgroundRefresh(key, original);
         return this.toResult(lookup.hit!);
       }
 
       case 'miss-cached':
         this.metrics.record('miss_cached');
-        // Miss negativo recente: não bate em terceiros.
+        
         return null;
 
       case 'absent':
@@ -142,7 +142,7 @@ export class PriceSearchService implements OnModuleInit, OnApplicationShutdown {
     return null;
   }
 
-  /** Snapshot dos contadores in-memory (útil em testes). */
+  
   getMetrics(): Record<CacheOutcome, number> {
     return this.metrics.snapshot();
   }

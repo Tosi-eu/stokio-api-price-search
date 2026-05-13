@@ -76,7 +76,7 @@ describe('PriceSearchRepository.lookup', () => {
     const l1 = makeCache();
     const l2 = makeDb();
     l1.get.mockResolvedValueOnce(null);
-    const lastSucceededAt = new Date(Date.now() - 24 * 60 * 60 * 1000); // 1d
+    const lastSucceededAt = new Date(Date.now() - 24 * 60 * 60 * 1000); 
     const dbEntry: DbCacheEntry = {
       averagePrice: 9.5,
       source: 'fake',
@@ -104,7 +104,7 @@ describe('PriceSearchRepository.lookup', () => {
     const l1 = makeCache();
     const l2 = makeDb();
     l1.get.mockResolvedValueOnce(null);
-    const veryOld = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30d
+    const veryOld = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); 
     l2.findByCanonical.mockResolvedValueOnce({
       averagePrice: 7,
       source: 'fake',
@@ -130,7 +130,7 @@ describe('PriceSearchRepository.lookup', () => {
     const l1 = makeCache();
     const l2 = makeDb();
     l1.get.mockResolvedValueOnce(null);
-    const recentFail = new Date(Date.now() - 30 * 60 * 1000); // 30m
+    const recentFail = new Date(Date.now() - 30 * 60 * 1000); 
     l2.findByCanonical.mockResolvedValueOnce({
       averagePrice: null,
       source: null,
@@ -155,7 +155,7 @@ describe('PriceSearchRepository.lookup', () => {
     const l1 = makeCache();
     const l2 = makeDb();
     l1.get.mockResolvedValueOnce(null);
-    const oldFail = new Date(Date.now() - 24 * 60 * 60 * 1000); // 1d > 6h
+    const oldFail = new Date(Date.now() - 24 * 60 * 60 * 1000); 
     l2.findByCanonical.mockResolvedValueOnce({
       averagePrice: null,
       source: null,

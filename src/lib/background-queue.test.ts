@@ -59,7 +59,7 @@ describe('BackgroundQueue', () => {
       throw new Error('intentional');
     })).toBe(true);
     await q.drain();
-    // Pode reenfileirar a mesma chave após erro.
+    
     expect(q.enqueue('boom', async () => undefined)).toBe(true);
     await q.drain();
   });

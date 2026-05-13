@@ -1,14 +1,5 @@
-/**
- * Canonicalização de strings para a chave do cache de preços (L2).
- *
- * O objetivo é fazer com que variações de escrita (caixa, acentos, espaços
- * múltiplos, hífens etc.) colapsem em uma única chave — assim "Dipirona",
- * "DIPIRONA", "dipirôna" e "dipirona  " viram a mesma entrada no cache.
- *
- * Os valores `*Canonical` armazenados na tabela usam string vazia (não NULL)
- * para representar "sem valor", de forma que o índice `@@unique` funcione
- * sem precisar de partial indexes — Postgres considera NULLs distintos.
- */
+
+
 export type ItemType = 'medicine' | 'input';
 
 export interface CanonicalKey {
@@ -36,10 +27,6 @@ export function canonicalizeText(s: string | undefined | null): string {
   return stripped;
 }
 
-/**
- * Normaliza dosagem numérica como "500,0mg" -> "500", "1/2" -> "0.5/1" etc.
- * Mantém compatibilidade com o helper do backend (`abrigo/backend/src/helpers/dosage.helper.ts`).
- */
 export function normalizeDosage(dosage: string): string {
   if (!dosage || typeof dosage !== 'string') {
     return dosage;
@@ -74,10 +61,6 @@ export function normalizeDosage(dosage: string): string {
   return normalizedNumerator;
 }
 
-/**
- * Constrói a chave canônica para lookup/upsert.
- * Para `input`, dosage/unit são sempre vazios (busca de insumos é só pelo nome).
- */
 export function canonicalKey(
   itemType: ItemType,
   input: OriginalInput,
@@ -105,10 +88,6 @@ export function canonicalKey(
   };
 }
 
-/**
- * Chave string compacta para uso em logs e Redis (versionada para invalidar
- * cache antigo quando mudarmos o algoritmo).
- */
 export const CACHE_KEY_VERSION = 'v2';
 
 export function canonicalCacheKey(key: CanonicalKey): string {
@@ -123,11 +102,6 @@ export function canonicalCacheKey(key: CanonicalKey): string {
   return parts.join(':').replace(/\s+/g, '_');
 }
 
-/**
- * Termo para `GET .../api/catalog_system/pub/products/search/{term}` (VTEX).
- * O segmento de path com caracteres como `( ) %` em nomes compostos (ex.: solução 0,9%)
- * pode responder **400**; reutilizamos a mesma limpeza da chave de cache.
- */
 export function vtexCatalogSearchQuery(itemName: string, dosage?: string): string {
   const combined = canonicalizeText(`${itemName} ${dosage ?? ''}`.trim());
   const fallback = canonicalizeText(itemName);

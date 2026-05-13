@@ -17,10 +17,6 @@ const OUTCOMES: CacheOutcome[] = [
   'origin_miss',
 ];
 
-/**
- * Métricas in-memory simples para o cache de preços. Periodicamente despeja
- * os contadores em log estruturado e zera. Sem dependências externas.
- */
 export class CacheMetrics {
   private counters: Record<CacheOutcome, number>;
   private timer: NodeJS.Timeout | null = null;

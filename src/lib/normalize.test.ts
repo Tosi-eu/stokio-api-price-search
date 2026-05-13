@@ -92,9 +92,9 @@ describe('canonicalKey', () => {
   });
 
   it('keeps distinct keys when dosage info is embedded in the item name', () => {
-    // Inputs em que a dosagem aparece no nome não colapsam com o nome puro,
-    // pois o canonical inclui números — esse é o comportamento desejado para
-    // não confundir "Dipirona" com "Dipirona Infantil 200" etc.
+    
+    
+    
     const a = canonicalKey('medicine', { itemName: 'Dipirona' });
     const b = canonicalKey('medicine', { itemName: 'dipirona-500' });
     expect(a.nameCanonical).toBe('dipirona');
@@ -149,13 +149,13 @@ describe('canonicalCacheKey', () => {
 });
 
 describe('vtexCatalogSearchQuery', () => {
-  it('remove caracteres que quebram o path VTEX (parênteses, %)', () => {
+  it('removes characters that break VTEX path (parentheses, %)', () => {
     expect(
       vtexCatalogSearchQuery('Nasonew (cloreto de sódio 0,9%)', '30'),
     ).toBe('nasonew cloreto de sodio 0,9 30');
   });
 
-  it('preserva dosagem numérica útil', () => {
+  it('preserves useful numeric dosage', () => {
     expect(vtexCatalogSearchQuery('Cinacalcete', '30')).toBe('cinacalcete 30');
   });
 });
