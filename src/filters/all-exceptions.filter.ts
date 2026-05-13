@@ -8,9 +8,6 @@ import {
 import { BaseExceptionFilter } from '@nestjs/core';
 import { reportPriceSearchError } from '../clients/error-ingest.client';
 
-/**
- * Regista qualquer excepção HTTP não tratada (pipes, guards, bugs) antes da resposta JSON padrão.
- */
 @Catch()
 export class PriceSearchAllExceptionsFilter
   extends BaseExceptionFilter
@@ -31,9 +28,7 @@ export class PriceSearchAllExceptionsFilter
         code: 'nest_uncaught',
         context: { filter: 'PriceSearchAllExceptionsFilter' },
       });
-    } catch {
-      // never block response
-    }
+    } catch {}
     super.catch(exception, host);
   }
 }

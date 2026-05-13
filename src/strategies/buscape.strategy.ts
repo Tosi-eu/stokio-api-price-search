@@ -42,7 +42,7 @@ export class BuscapeStrategy implements PriceSourceStrategy {
 
       return prices;
     } catch (error) {
-      logger.error('Erro no BuscapeStrategy', {
+      logger.error('BuscapeStrategy error', {
         error: (error as Error).message,
       });
       reportPriceSearchError(error, {

@@ -34,7 +34,7 @@ export class DrogariaSaoPauloStrategy implements PriceSourceStrategy {
         'https://www.drogariasaopaulo.com.br/api/catalog_system/pub/products/search/' +
         encodeURIComponent(query);
 
-      logger.debug('Buscando preços na Drogaria São Paulo (VTEX)', {
+      logger.debug('Fetching prices from Drogaria Sao Paulo (VTEX)', {
         source: this.sourceName,
         url,
         query,
@@ -76,7 +76,7 @@ export class DrogariaSaoPauloStrategy implements PriceSourceStrategy {
 
       return prices;
     } catch (error) {
-      logger.error('Erro ao buscar preços na Drogaria São Paulo', {
+      logger.error('Drogaria Sao Paulo price fetch failed', {
         source: this.sourceName,
         error: (error as Error).message,
       });

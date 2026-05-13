@@ -15,10 +15,6 @@ function ingestApiKey(): string | null {
   );
 }
 
-/**
- * POST fire-and-forget para o backend (`/api/v1/internal/errors`).
- * Sem URL ou chave configurados, não faz nada.
- */
 export function reportPriceSearchError(
   err: unknown,
   extra?: Partial<Omit<ToCanonicalDefaults, 'source'>>,

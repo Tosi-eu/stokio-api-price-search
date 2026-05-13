@@ -51,7 +51,7 @@ export class SearchController {
         lastUpdated: result.lastUpdated.toISOString(),
       };
     } catch (e) {
-      logger.error('Erro na busca de preço', {
+      logger.error('Price search error', {
         error: (e as Error).message,
       });
       throw new HttpException(
@@ -75,7 +75,7 @@ export class SearchController {
         body.measurementUnit,
       );
     } catch (e) {
-      logger.error('Erro ao invalidar cache', {
+      logger.error('Cache invalidate error', {
         error: (e as Error).message,
       });
       throw new HttpException(

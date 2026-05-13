@@ -34,7 +34,7 @@ export class ConsultaRemediosStrategy implements PriceSourceStrategy {
         )}`,
       ];
 
-      logger.debug('Buscando preços na Consulta Remédios', {
+      logger.debug('Fetching prices from Consulta Remedios', {
         source: this.sourceName,
         urls,
         normalizedPath,
@@ -63,7 +63,7 @@ export class ConsultaRemediosStrategy implements PriceSourceStrategy {
 
       return [];
     } catch (error) {
-      logger.error('Erro no ConsultaRemediosStrategy', {
+      logger.error('ConsultaRemediosStrategy error', {
         error: (error as Error).message,
       });
       reportPriceSearchError(error, {

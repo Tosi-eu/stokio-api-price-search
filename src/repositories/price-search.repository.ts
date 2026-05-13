@@ -13,12 +13,11 @@ import {
 } from '../lib/normalize';
 import { logger } from '../logger';
 
-/** Resultado retornado pelo `lookup`, descrevendo o estado da entrada. */
 export type Freshness =
-  | 'fresh' // hit recente (dentro do HIT_TTL) — pode servir direto
-  | 'stale' // hit, mas vencido — serve agora e dispara refresh em background
-  | 'miss-cached' // miss recente registrado no L2 — não tenta APIs
-  | 'absent'; // nada cacheado — busca síncrona
+  | 'fresh' 
+  | 'stale' 
+  | 'miss-cached' 
+  | 'absent'; 
 
 export interface CachedHit {
   averagePrice: number;
@@ -39,22 +38,6 @@ interface L1Payload {
   lastSucceededAt: string;
 }
 
-/**
- * Repositório composto: L1 (Redis, TTL curto) + L2 (Postgres, persistente).
- *
- * Fluxo de leitura (`lookup`):
- *   L1 fresh? -> serve.
- *   L2 fresh? -> aquece L1 e serve.
- *   L2 stale? -> serve cached e devolve `freshness: 'stale'` para o service
- *     decidir disparar refresh em background.
- *   L2 miss-cached recente? -> retorna `freshness: 'miss-cached'`, nada de APIs.
- *   absent -> busca síncrona nas APIs.
- *
- * Fluxo de escrita (`commit`):
- *   - hit: upsert L2 + set L1 (TTL curto).
- *   - miss: upsert L2 (negativo) + invalida L1 (não envenenamos cache rápido
- *     com null) — o `miss-cached` no L2 já protege de re-bater APIs.
- */
 @Injectable()
 export class PriceSearchRepository {
   private readonly hitTtlMs: number;
@@ -74,7 +57,7 @@ export class PriceSearchRepository {
   async lookup(key: CanonicalKey): Promise<LookupResult> {
     const cacheKey = canonicalCacheKey(key);
 
-    // L1 — Redis (rápido, mas TTL curto).
+    
     const l1Hit = await this.l1.get<L1Payload>(cacheKey);
     if (l1Hit) {
       const lastSuccessMs = Date.parse(
@@ -96,7 +79,7 @@ export class PriceSearchRepository {
       }
     }
 
-    // L2 — Postgres (fonte de verdade persistente).
+    
     const l2Hit = await this.l2.findByCanonical(key);
     if (!l2Hit) {
       return { freshness: 'absent', level: null, hit: null };
@@ -111,7 +94,7 @@ export class PriceSearchRepository {
       };
 
       if (ageMs <= this.hitTtlMs) {
-        // Aquece L1 para próximas leituras.
+        
         await this.warmL1(cacheKey, hit);
         return { freshness: 'fresh', level: 'L2', hit };
       }
@@ -119,7 +102,7 @@ export class PriceSearchRepository {
       return { freshness: 'stale', level: 'L2', hit };
     }
 
-    // Sem sucesso registrado: trata-se de um miss negativo.
+    
     const missAgeMs = Date.now() - l2Hit.lastAttemptedAt.getTime();
     if (missAgeMs <= this.missTtlMs) {
       return { freshness: 'miss-cached', level: 'L2', hit: null };
@@ -160,10 +143,10 @@ export class PriceSearchRepository {
     const cacheKey = canonicalCacheKey(key);
     await Promise.all([
       this.l2.upsertMiss({ key, original, errorMessage }),
-      // Invalida L1 explicitamente — não envenenamos o cache rápido com null;
-      // o `miss-cached` em L2 já evita re-bater APIs.
+      
+      
       this.l1.invalidate(cacheKey).catch(err => {
-        logger.warn('Falha ao invalidar L1 após miss', {
+        logger.warn('Failed to invalidate L1 after miss', {
           error: (err as Error).message,
         });
       }),
@@ -188,7 +171,7 @@ export class PriceSearchRepository {
     try {
       await this.l1.set(cacheKey, payload, this.l1TtlSeconds);
     } catch (err) {
-      logger.warn('Falha ao aquecer L1', {
+      logger.warn('Failed to warm L1', {
         error: (err as Error).message,
       });
     }

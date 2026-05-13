@@ -25,14 +25,14 @@ async function bootstrap(): Promise<void> {
 
   await app.listen(config.PORT, '0.0.0.0');
 
-  logger.info('porto-api-price-search escutando', {
+  logger.info('price-search listening', {
     port: config.PORT,
     redis: Boolean(config.REDIS_HOST),
   });
 }
 
 bootstrap().catch(err => {
-  logger.error('Falha ao iniciar aplicação', { error: (err as Error).message });
+  logger.error('Failed to start application', { error: (err as Error).message });
   reportPriceSearchError(err, {
     category: 'config',
     code: 'bootstrap',

@@ -63,9 +63,12 @@ function makeService(opts: {
   return { service, repoMocks: mocks };
 }
 
-function makeFakeMedicineStrategy(prices: number[]): PriceSourceStrategy {
+function makeFakeMedicineStrategy(
+  prices: number[],
+  sourceName = 'fake_med',
+): PriceSourceStrategy {
   return {
-    sourceName: 'fake_med',
+    sourceName,
     supports: t => t === 'medicine',
     fetchPrices: jest.fn(async () => prices),
   };
@@ -166,6 +169,29 @@ describe('PriceSearchService SWR flow', () => {
     expect(service.getMetrics().origin_hit).toBe(1);
   }, 15_000);
 
+  it('combines multiple sources by median of medians (no inflation from many quotes in one source)', async () => {
+    const stratLow = makeFakeMedicineStrategy([10, 11, 12], 'cheap_chain');
+    const stratHigh = makeFakeMedicineStrategy(
+      [30, 31, 32, 33, 100],
+      'wide_chain',
+    );
+    const { service, repoMocks } = makeService({
+      strategies: [stratLow, stratHigh],
+    });
+    repoMocks.lookup.mockResolvedValueOnce({
+      freshness: 'absent',
+      level: null,
+      hit: null,
+    });
+
+    const r = await service.searchPrice('TestMed', 'medicine');
+
+    expect(r).not.toBeNull();
+    
+    expect(r?.averagePrice).toBe(21.5);
+    expect(repoMocks.commitHit).toHaveBeenCalledTimes(1);
+  }, 15_000);
+
   it('commits a miss when no strategy returned prices', async () => {
     const strat: PriceSourceStrategy = {
       sourceName: 'fake_med',
@@ -202,20 +228,20 @@ describe('PriceSearchService SWR flow', () => {
 
     const r = await service.searchPrice('Dipirona', 'medicine', '500', 'mg');
 
-    // Imediato: deve devolver o cached, sem ter chamado strategies ainda no
-    // path principal.
+    
+    
     expect(r?.averagePrice).toBe(15.0);
     expect(r?.source).toBe('old_source');
     expect(service.getMetrics().hit_stale_revalidate).toBe(1);
 
-    // O refresh ocorre em background; aguardar até a strategy ser invocada.
+    
     await waitUntil(
       () => (strat.fetchPrices as jest.Mock).mock.calls.length === 1,
       5000,
     );
 
     expect(strat.fetchPrices).toHaveBeenCalledTimes(1);
-    // Eventualmente persiste o resultado novo.
+    
     await waitUntil(
       () => (repoMocks.commitHit as jest.Mock).mock.calls.length === 1,
       5000,
