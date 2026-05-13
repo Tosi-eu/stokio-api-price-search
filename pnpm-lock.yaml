@@ -24,8 +24,8 @@ importers:
         specifier: ^5.22.0
         version: 5.22.0(prisma@5.22.0)
       '@stokio/sdk':
-        specifier: ^0.4.1
-        version: 0.4.1
+        specifier: ^0.4.3
+        version: 0.4.3
       axios:
         specifier: ^1.13.2
         version: 1.16.0
@@ -661,8 +661,8 @@ packages:
   '@sinonjs/fake-timers@10.3.0':
     resolution: {integrity: sha512-V4BG07kuYSUkTCSBHG8G8TNhM+F19jXFWnQtzj+we8DrkpSBCee9Z3Ms8yiGer/dlmhe35/Xdgyo3/0rQKg7YA==}
 
-  '@stokio/sdk@0.4.1':
-    resolution: {integrity: sha512-wSrpAi23DI9b1/y4bEB539bpuINpKWTGaBe2kz0+FY7LQwUdPa+3/UxM9cS9BYccEUDQIt3DUVYphk9j6zi/XA==}
+  '@stokio/sdk@0.4.3':
+    resolution: {integrity: sha512-9Zg7gR4KD/wWKg/cSXBVTHrcBTZefBm473shsIL8h8alAgN+aBDo4yWcP0glaxvsQtUlA9Hf0HaoRa+kSZVOLg==}
 
   '@swc/core-darwin-arm64@1.15.33':
     resolution: {integrity: sha512-N+L0uXhuO7FIfzqwgxmzv0zIpV0qEp8wPX3QQs2p4atjMoywup2JTeDlXPw+z9pWJGCae3JjM+tZ6myclI+2gA==}
@@ -3602,7 +3602,7 @@ snapshots:
     dependencies:
       '@sinonjs/commons': 3.0.1
 
-  '@stokio/sdk@0.4.1': {}
+  '@stokio/sdk@0.4.3': {}
 
   '@swc/core-darwin-arm64@1.15.33':
     optional: true
